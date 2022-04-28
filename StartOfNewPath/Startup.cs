@@ -9,7 +9,6 @@ using Microsoft.Extensions.Hosting;
 using StartOfNewPath.BusinessLayer.Configuration;
 using StartOfNewPath.BusinessLayer.Mapping;
 using StartOfNewPath.Data;
-using StartOfNewPath.DataAccessLayer.Entities.User;
 using StartOfNewPath.Identity.Authentication;
 using StartOfNewPath.Identity.Interfaces;
 using StartOfNewPath.Identity.Services;
@@ -34,7 +33,7 @@ namespace StartOfNewPath
 
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<SONPAuthContext>(option => option.UseSqlServer(connection));
-            services.AddIdentity<ApplicationUserModel, ApplicationRole>()
+            services.AddIdentity<ApplicationUserModel, ApplicationRoleModel>()
                 .AddEntityFrameworkStores<SONPAuthContext>();
 
             var settings = Configuration.GetSection(nameof(JWTSettings));

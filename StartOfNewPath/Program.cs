@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using StartOfNewPath.DataAccessLayer.Entities.User;
 using StartOfNewPath.Initialization;
+using StartOfNewPath.Models.User;
 using System;
 using System.Threading.Tasks;
 
@@ -15,7 +15,10 @@ namespace StartOfNewPath
         public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
+
             await StartInitialization(host);
+
+            host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -31,8 +34,8 @@ namespace StartOfNewPath
             var services = scope.ServiceProvider;
             try
             {
-                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-                var rolesManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
+                var userManager = services.GetRequiredService<UserManager<ApplicationUserModel>>();
+                var rolesManager = services.GetRequiredService<RoleManager<ApplicationRoleModel>>();
                 await RoleInitializer.InitializeAsync(userManager, rolesManager);
             }
             catch (Exception ex)
@@ -40,8 +43,6 @@ namespace StartOfNewPath
                 var logger = services.GetRequiredService<ILogger<Program>>();
                 logger.LogError(ex, "An error occurred while seeding the database.");
             }
-
-            host.Run();
         }
     }
 }

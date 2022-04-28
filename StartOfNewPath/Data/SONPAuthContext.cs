@@ -14,5 +14,7 @@ namespace StartOfNewPath.Data
         {
             Database.EnsureCreated();
         }
+
+        public DbSet<ApplicationRoleModel> Role { get; set; }
     }
 }

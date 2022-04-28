@@ -1,9 +1,5 @@
-﻿using IdentityServer4.EntityFramework.Options;
-using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
 using StartOfNewPath.DataAccessLayer.Entities;
-using StartOfNewPath.DataAccessLayer.Entities.User;
 
 namespace StartOfNewPath.DataAccessLayer.Data
 {
@@ -15,7 +11,5 @@ namespace StartOfNewPath.DataAccessLayer.Data
         }
 
         public DbSet<Course> Course { get; set; }
-
-        public DbSet<ApplicationRole> Role { get; set; }
     }
 }

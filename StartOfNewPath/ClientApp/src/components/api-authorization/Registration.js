@@ -10,7 +10,7 @@ const Registration = (props) => {
         surname: "",
         email: "",
         password: "",
-        confirmPassword: ""
+        passwordConfirm: ""
     });
 
     const handleChange = (event) => {
@@ -31,9 +31,9 @@ const Registration = (props) => {
             body: JSON.stringify(user),
         });
 
-        const result = response.json();
+        const result = await response.json();
 
-        console.log(1);
+        console.log(result);
     }
 
     return (
@@ -41,37 +41,37 @@ const Registration = (props) => {
             <div className="mb-3 row">
                 <label htmlFor="userName" className="col-sm-2 col-form-label">Имя пользователя</label>
                 <div className="col-sm-10">
-                    <input type="text" className="form-control" id="userName" onChange={handleChange} />
+                    <input type="text" className="form-control" id="userName" name="userName" onChange={handleChange} />
                 </div>
             </div>
             <div className="mb-3 row">
                 <label htmlFor="firstName" className="col-sm-2 col-form-label">Имя</label>
                 <div className="col-sm-10">
-                    <input type="text" className="form-control" id="firstName" onChange={handleChange} />
+                    <input type="text" className="form-control" id="firstName" name="firstName" onChange={handleChange} />
                 </div>
             </div>
             <div className="mb-3 row">
                 <label htmlFor="surname" className="col-sm-2 col-form-label">Фамилия</label>
                 <div className="col-sm-10">
-                    <input type="text" className="form-control" id="surname" onChange={handleChange} />
+                    <input type="text" className="form-control" id="surname" name="surname" onChange={handleChange} />
                 </div>
             </div>
             <div className="mb-3 row">
                 <label htmlFor="email" className="col-sm-2 col-form-label">Email</label>
                 <div className="col-sm-10">
-                    <input type="email" className="form-control" id="email" onChange={handleChange} />
+                    <input type="email" className="form-control" id="email" name="email" onChange={handleChange} />
                 </div>
             </div>
             <div className="mb-3 row">
                 <label htmlFor="password" className="col-sm-2 col-form-label">Пароль</label>
                 <div className="col-sm-10">
-                    <input type="password" className="form-control" id="password" onChange={handleChange} />
+                    <input type="password" className="form-control" id="password" name="password" onChange={handleChange} />
                 </div>
             </div>
             <div className="mb-3 row">
                 <label forhtml="confirmPassword" className="col-sm-2 col-form-label">Подтверждение пароля</label>
                 <div className="col-sm-10">
-                    <input type="password" className="form-control" id="confirmPassword" onChange={handleChange} />
+                    <input type="password" className="form-control" id="passwordConfirm" name="passwordConfirm" onChange={handleChange} />
                 </div>
             </div>
             <div>
