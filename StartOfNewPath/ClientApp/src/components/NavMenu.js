@@ -1,7 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import { LoginMenu } from './api-authorization/LoginMenu';
+import LoginMenu from './api-authorization/LoginMenu';
+
 import '../styles/navMenu.css';
 
 export class NavMenu extends Component {
@@ -34,8 +35,7 @@ export class NavMenu extends Component {
                 <NavItem>
                   <NavLink tag={Link} className="text-dark" to="/">Популярные курсы</NavLink>
                 </NavItem>
-                <LoginMenu>
-                </LoginMenu>
+                <LoginMenu />
               </ul>
             </Collapse>
           </Container>

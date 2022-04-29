@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import authService from './api-authorization/AuthorizeService';
+import { useAuthorizeService } from './api-authorization/AuthorizeService';
 import FormValidate from './FormValidate';
 
 import '../styles/formValidate.css';
@@ -22,27 +22,15 @@ const CreateCourse = (props) => {
     });
     const [difficulty, setDifficulty] = useState(0);
     const [courseResult, setCourseResult] = useState(0);
-    const [user, setUser] = useState(null);
+    //const [isAuth, userManager] = useAuthorizeService();
     const [minDate, setMinDate] = useState("2022-04-26");
 
     useEffect(() => {
-        let isMounted = true;
-        const getUserAsync = async () => {
-            if (isMounted) {
-                await getUser();
-            }
-        };
-
-        getUserAsync();
-
         const date = new Date();
         const month = date.getMonth() < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
         const today = `${date.getFullYear()}-${month}-${date.getDate()}`;
-        setMinDate(today);
 
-        return () => {
-            isMounted = false;
-        };
+        setMinDate(today);
     }, []);
 
     useEffect(() => {
@@ -50,12 +38,6 @@ const CreateCourse = (props) => {
             navigate("/");
         }
     }, [courseResult]);
-
-    const getUser = async () => {
-        const [user] = await Promise.all([authService.getUser()])
-
-        setUser(user);
-    }
 
     const handleChange = (event) => {
         const data = course;
@@ -82,6 +64,7 @@ const CreateCourse = (props) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
         await createCourse(course);
     }
 

@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useAuthorizeService } from './AuthorizeService';
 
 const Registration = (props) => {
     const navigate = useNavigate();
@@ -13,6 +14,8 @@ const Registration = (props) => {
         passwordConfirm: ""
     });
 
+    const [isAuth, serManager, register] = useAuthorizeService(user);
+
     const handleChange = (event) => {
         const val = event.target.value;
         const name = event.target.name;
@@ -23,17 +26,9 @@ const Registration = (props) => {
     }
 
     const handleSubmit = async (event) => {
-        const response = await fetch('account', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(user),
-        });
+        event.preventDefault();
 
-        const result = await response.json();
-
-        console.log(result);
+        await register(true);
     }
 
     return (
@@ -75,7 +70,7 @@ const Registration = (props) => {
                 </div>
             </div>
             <div>
-                <button type="button" className="btn btn-success" onClick={handleSubmit}>Регистрация</button>
+                <button type="submit" className="btn btn-success">Регистрация</button>
                 <button type="button" className="btn btn-dark" onClick={() => navigate("/")}>Отмена</button>
             </div>
         </form>

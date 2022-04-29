@@ -1,7 +1,7 @@
 import React from 'react'
 import { Component } from 'react';
-import authService from './AuthorizeService';
-import { AuthenticationResultStatus } from './AuthorizeService';
+//import authService from './AuthorizeService';
+//import { AuthenticationResultStatus } from './AuthorizeService';
 import { QueryParameterNames, LogoutActions, ApplicationPaths } from './ApiAuthorizationConstants';
 
 // The main responsibility of this component is to handle the user's logout process.
@@ -65,44 +65,44 @@ export class Logout extends Component {
     }
 
     async logout(returnUrl) {
-        const state = { returnUrl };
-        const isauthenticated = await authService.isAuthenticated();
-        if (isauthenticated) {
-            const result = await authService.signOut(state);
-            switch (result.status) {
-                case AuthenticationResultStatus.Redirect:
-                    break;
-                case AuthenticationResultStatus.Success:
-                    await this.navigateToReturnUrl(returnUrl);
-                    break;
-                case AuthenticationResultStatus.Fail:
-                    this.setState({ message: result.message });
-                    break;
-                default:
-                    throw new Error("Invalid authentication result status.");
-            }
-        } else {
-            this.setState({ message: "You successfully logged out!" });
-        }
+        //const state = { returnUrl };
+        //const isauthenticated = await authService.isAuthenticated();
+        //if (isauthenticated) {
+        //    const result = await authService.signOut(state);
+        //    switch (result.status) {
+        //        case AuthenticationResultStatus.Redirect:
+        //            break;
+        //        case AuthenticationResultStatus.Success:
+        //            await this.navigateToReturnUrl(returnUrl);
+        //            break;
+        //        case AuthenticationResultStatus.Fail:
+        //            this.setState({ message: result.message });
+        //            break;
+        //        default:
+        //            throw new Error("Invalid authentication result status.");
+        //    }
+        //} else {
+        //    this.setState({ message: "You successfully logged out!" });
+        //}
     }
 
     async processLogoutCallback() {
-        const url = window.location.href;
-        const result = await authService.completeSignOut(url);
-        switch (result.status) {
-            case AuthenticationResultStatus.Redirect:
-                // There should not be any redirects as the only time completeAuthentication finishes
-                // is when we are doing a redirect sign in flow.
-                throw new Error('Should not redirect.');
-            case AuthenticationResultStatus.Success:
-                await this.navigateToReturnUrl(this.getReturnUrl(result.state));
-                break;
-            case AuthenticationResultStatus.Fail:
-                this.setState({ message: result.message });
-                break;
-            default:
-                throw new Error("Invalid authentication result status.");
-        }
+        //const url = window.location.href;
+        //const result = await authService.completeSignOut(url);
+        //switch (result.status) {
+        //    case AuthenticationResultStatus.Redirect:
+        //        // There should not be any redirects as the only time completeAuthentication finishes
+        //        // is when we are doing a redirect sign in flow.
+        //        throw new Error('Should not redirect.');
+        //    case AuthenticationResultStatus.Success:
+        //        await this.navigateToReturnUrl(this.getReturnUrl(result.state));
+        //        break;
+        //    case AuthenticationResultStatus.Fail:
+        //        this.setState({ message: result.message });
+        //        break;
+        //    default:
+        //        throw new Error("Invalid authentication result status.");
+        //}
     }
 
     async populateAuthenticationState() {

@@ -13,8 +13,8 @@ namespace StartOfNewPath.Controllers
     [Route("[controller]")]
     public class CourseController : ControllerBase
     {
-        readonly IService<CourseDto> _service;
-        readonly IMapper _mapper;
+        private readonly IService<CourseDto> _service;
+        private readonly IMapper _mapper;
 
         public CourseController(IService<CourseDto> service, IMapper mapper)
         {
@@ -22,6 +22,7 @@ namespace StartOfNewPath.Controllers
             _mapper = mapper;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IEnumerable<CourseModel>> Get()
         {
@@ -31,6 +32,7 @@ namespace StartOfNewPath.Controllers
             return result;
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public CourseModel GetById(int id)
         {

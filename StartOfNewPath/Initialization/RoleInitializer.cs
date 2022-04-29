@@ -7,7 +7,7 @@ namespace StartOfNewPath.Initialization
 {
     public class RoleInitializer
     {
-        internal static async Task InitializeAsync(UserManager<ApplicationUserModel> userManager, RoleManager<ApplicationRoleModel> roleManager)
+        internal static async Task InitializeAsync(UserManager<ApplicationUserModel> userManager, RoleManager<IdentityRole> roleManager)
         {
             const string adminEmail = "admin@gmail.com";
             const string password = "_Aa123456";

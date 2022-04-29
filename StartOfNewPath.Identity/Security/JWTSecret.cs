@@ -3,9 +3,9 @@ using System.Security.Cryptography;
 
 namespace StartOfNewPath.Identity.Security
 {
-    internal static class JWTSecret
+    public static class JWTSecret
     {
-        public static string SecretKey { get; set; }
+        public static string SecretKey { get; private set; }
 
         public static void GenerateSecretKey()
         {

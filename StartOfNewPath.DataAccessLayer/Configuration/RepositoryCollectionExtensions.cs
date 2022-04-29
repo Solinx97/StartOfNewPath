@@ -16,6 +16,7 @@ namespace StartOfNewPath.DataAccessLayer.Configuration
             services.AddDbContext<SONPContext>(options => options.UseSqlServer(connection));
 
             services.AddScoped<IGenericRepository<Course>, GenericRepository<Course>>();
+            services.AddScoped<IGenericRepository<RefreshToken>, GenericRepository<RefreshToken>>();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace StartOfNewPath.Identity.Settings
 {
-    public class JWTSettings
+    public class TokenSettings
     {
         public string Issuer { get; set; }
 
