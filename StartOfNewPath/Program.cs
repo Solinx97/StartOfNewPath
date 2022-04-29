@@ -19,7 +19,6 @@ namespace StartOfNewPath
 
             JWTSecret.GenerateSecretKey();
 
-            //host.Run();
             await StartInitialization(host);
         }
 
@@ -37,7 +36,7 @@ namespace StartOfNewPath
             try
             {
                 var userManager = services.GetRequiredService<UserManager<ApplicationUserModel>>();
-                var rolesManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                var rolesManager = services.GetRequiredService<RoleManager<ApplicationRoleModel>>();
                 await RoleInitializer.InitializeAsync(userManager, rolesManager);
             }
             catch (Exception ex)
