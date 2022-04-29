@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using StartOfNewPath.DataAccessLayer.Entities.User
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
+@using StartOfNewPath.Models.User
+@inject SignInManager<ApplicationUserModel> SignInManager
+@inject UserManager<ApplicationRoleModel> UserManager
 
 @{
     string returnUrl = null;

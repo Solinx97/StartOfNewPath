@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace StartOfNewPath.DataAccessLayer.Entities.User
+namespace StartOfNewPath.DataAccessLayer.Entities
 {
+    [NotMapped]
     public class ApplicationRole : IdentityRole
     {
         public ApplicationRole()

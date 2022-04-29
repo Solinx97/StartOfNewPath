@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -9,10 +10,9 @@ using Microsoft.Extensions.Hosting;
 using StartOfNewPath.BusinessLayer.Configuration;
 using StartOfNewPath.BusinessLayer.Mapping;
 using StartOfNewPath.Data;
-using StartOfNewPath.DataAccessLayer.Entities.User;
 using StartOfNewPath.Identity.Authentication;
-using StartOfNewPath.Identity.Interfaces;
-using StartOfNewPath.Identity.Services;
+using StartOfNewPath.Identity.Configuration;
+using StartOfNewPath.Identity.Mapping;
 using StartOfNewPath.Identity.Settings;
 using StartOfNewPath.Mapping;
 using StartOfNewPath.Models.User;
@@ -34,12 +34,12 @@ namespace StartOfNewPath
 
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<SONPAuthContext>(option => option.UseSqlServer(connection));
-            services.AddIdentity<ApplicationUserModel, ApplicationRole>()
+            services.AddIdentity<ApplicationUserModel, IdentityRole>()
                 .AddEntityFrameworkStores<SONPAuthContext>();
 
-            var settings = Configuration.GetSection(nameof(JWTSettings));
-            var scheme = settings.GetValue<string>(nameof(JWTSettings.AuthScheme));
-            services.Configure<JWTSettings>(settings);
+            var settings = Configuration.GetSection(nameof(TokenSettings));
+            var scheme = settings.GetValue<string>(nameof(TokenSettings.AuthScheme));
+            services.Configure<TokenSettings>(settings);
             settings = Configuration.GetSection(nameof(UserApiSettings));
             services.Configure<UserApiSettings>(settings);
 
@@ -63,6 +63,7 @@ namespace StartOfNewPath
             {
                 mc.AddProfile(new ApiMappingProfile());
                 mc.AddProfile(new MappingProfile());
+                mc.AddProfile(new IdentityMappingProfile());
             });
 
             IMapper mapper = mappingConfig.CreateMapper();
@@ -89,7 +90,6 @@ namespace StartOfNewPath
             app.UseRouting();
 
             app.UseAuthentication();
-            //app.UseIdentityServer();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -114,8 +114,7 @@ namespace StartOfNewPath
         private void RegisteringDependencies(IServiceCollection services)
         {
             services.RegisterDependenciesBL(Configuration, "DefaultConnection");
-
-            services.AddSingleton<IJWTService, JWTService>();
+            services.RegisterDependenciesI();
         }
     }
 }

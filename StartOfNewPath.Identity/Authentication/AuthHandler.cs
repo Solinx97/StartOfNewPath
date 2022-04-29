@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StartOfNewPath.Identity.Settings;
@@ -14,7 +14,7 @@ namespace StartOfNewPath.Identity.Authentication
 {
     public class AuthHandler : AuthenticationHandler<AuthOptions>
     {
-        private readonly IOptions<JWTSettings> _tokenSettings;
+        private readonly IOptions<TokenSettings> _tokenSettings;
         private readonly IOptions<UserApiSettings> _userApiSettings;
 
         public AuthHandler(
@@ -22,7 +22,7 @@ namespace StartOfNewPath.Identity.Authentication
             ILoggerFactory logger,
             UrlEncoder encoder,
             ISystemClock clock,
-            IOptions<JWTSettings> tokenSettings,
+            IOptions<TokenSettings> tokenSettings,
             IOptions<UserApiSettings> userApiSettings)
             : base(options, logger, encoder, clock)
         {
@@ -40,7 +40,7 @@ namespace StartOfNewPath.Identity.Authentication
             var token = Request.Headers["Authorization"].ToString().Substring(_tokenSettings.Value.AuthScheme.Length);
             using var httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri(_userApiSettings.Value.Port);
-            var response = await httpClient.GetAsync($"account/validate?token={token}");
+            var response = await httpClient.GetAsync($"authentication/validate?token={token}");
 
             if (response.StatusCode == HttpStatusCode.OK)
             {

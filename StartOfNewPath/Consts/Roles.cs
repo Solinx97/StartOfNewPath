@@ -4,8 +4,6 @@
     {
         public static string Admin = "Admin";
 
-        public static string User = "User";
-
         public static string Quest = "Quest";
 
         public static string Mentor = "Mentor";

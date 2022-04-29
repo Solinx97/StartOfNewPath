@@ -1,11 +1,10 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import authService from './api-authorization/AuthorizeService';
+import { useAuthorizeService } from './api-authorization/AuthorizeService';
 
 const MainPage = (props) => {
-    const [isAuthenticated, setAuthenticated] = useState(false);
-    const [loading, setloading] = useState(false);
     const [coursesRender, setCoursesRender] = useState(null);
+    const [isAuth] = useAuthorizeService(null);
 
     const navigate = useNavigate();
 
@@ -24,21 +23,6 @@ const MainPage = (props) => {
         };
     }, []);
 
-    useEffect(() => {
-        let isMounted = true;
-        const checkAuthorizationAsync = async () => {
-            if (isMounted) {
-                await checkAuthorization();
-            }
-        };
-
-        checkAuthorizationAsync();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [isAuthenticated]);
-
     const getAllGourses = async () => {
         const response = await fetch('course', {
             method: 'GET',
@@ -48,8 +32,6 @@ const MainPage = (props) => {
         });
 
         const data = await response.json();
-        setloading(false);
-
         fillingCourseList(data);
     }
 
@@ -73,14 +55,9 @@ const MainPage = (props) => {
         );
     }
 
-    const checkAuthorization = async () => {
-        const isAuthenticated = await authService.isAuthenticated();
-        setAuthenticated(isAuthenticated);
-    }
-
     return (
         <div>
-            {isAuthenticated &&
+            {isAuth() &&
                 <button type="button" className="btn btn-success" onClick={() => navigate("/create-course")}>Создать курс</button>
             }
             <h2>Популярные курсы</h2>
