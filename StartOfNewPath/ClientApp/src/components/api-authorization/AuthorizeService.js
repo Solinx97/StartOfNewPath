@@ -1,17 +1,10 @@
 import { useContext } from 'react';
 import { Context } from '../../index';
-import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 
 export const useAuthorizeService = (data) => {
     const navigate = useNavigate();
-    const [cookies] = useCookies(['token']);
-    const { store } = useContext(Context);
-
-    let isAuth = () => {
-        const token = cookies['token'];
-        return token != undefined;
-    }
+    const { userStore } = useContext(Context);
 
     const register = async (useAutoLogin = false) => {
         const response = await fetch('account', {
@@ -45,20 +38,13 @@ export const useAuthorizeService = (data) => {
         const result = await response;
         if (result.status == 200) {
             const data = await result.json();
-            const userManagerData = {
-                isAuth: true,
-                roles: data.roles,
-                user: data.user
-            };
 
-            store.setUser(data.user);
+            userStore.setUser(data);
+            userStore.setIsAuth(true);
+
             navigate("/");
         }
     }
 
-    const getUserManager = () => {
-        return store.getUser();
-    }
-
-    return [isAuth, getUserManager, register, login];
+    return [register, login];
 }

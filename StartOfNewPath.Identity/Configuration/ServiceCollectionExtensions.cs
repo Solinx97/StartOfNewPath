@@ -8,7 +8,7 @@ namespace StartOfNewPath.Identity.Configuration
     {
         public static void RegisterDependenciesI(this IServiceCollection services)
         {
-            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IIdentityTokenService, TokenService>();
         }
     }
 }

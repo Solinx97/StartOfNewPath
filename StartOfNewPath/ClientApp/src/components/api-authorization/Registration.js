@@ -14,7 +14,7 @@ const Registration = (props) => {
         passwordConfirm: ""
     });
 
-    const [isAuth, serManager, register] = useAuthorizeService(user);
+    const [register] = useAuthorizeService(user);
 
     const handleChange = (event) => {
         const val = event.target.value;

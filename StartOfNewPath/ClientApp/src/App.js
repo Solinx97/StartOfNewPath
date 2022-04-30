@@ -1,27 +1,36 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import {
     Routes,
-    Route,
+    Route
 } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import MainPage from './components/MainPage';
 import CreateCourse from './components/CreateCourse';
 import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
+import { Context } from '.';
 
 import './styles/custom.css';
 
-export default class App extends Component {
-    static displayName = App.name;
+const App = () => {
+    const { userStore } = useContext(Context);
 
-    render() {
-        return (
-            <Layout>
-                <Routes>
-                    <Route path='/' element={<MainPage />} />
-                    <Route path='/create-course' element={<CreateCourse />} />
-                    <Route path="*" element={<ApiAuthorizationRoutes />} />
-                </Routes>
-            </Layout>
-        );
-    }
+    useEffect(() => {
+        const checkAuthAsync = async () => {
+            await userStore.checkAuth();
+        }
+
+        checkAuthAsync();
+    }, []);
+
+     return (
+         <Layout>
+             <Routes>
+                 <Route path='/' element={<MainPage />} />
+                 <Route path='/create-course' element={<CreateCourse />} />
+                 <Route path="*" element={<ApiAuthorizationRoutes />} />
+             </Routes>
+         </Layout>
+     );
 }
+
+export default App;

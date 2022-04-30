@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StartOfNewPath.DataAccessLayer.Entities;
 using StartOfNewPath.DataAccessLayer.Interfaces;
-using StartOfNewPath.Identity.DTO;
 using StartOfNewPath.Identity.Interfaces;
 using StartOfNewPath.Identity.Security;
 using StartOfNewPath.Identity.Settings;
@@ -12,18 +11,16 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StartOfNewPath.Identity.Services
 {
-    internal class TokenService : ITokenService
+    internal class TokenService : IIdentityTokenService
     {
         private readonly IGenericRepository<RefreshToken> _repository;
         private readonly IMapper _mapper;
         private readonly TokenSettings _tokenSettings;
-        private readonly string _secretKey;
         private const int ExpiresTime = 10;
 
         public TokenService(IOptions<TokenSettings> settings, IGenericRepository<RefreshToken> repository,
@@ -32,85 +29,120 @@ namespace StartOfNewPath.Identity.Services
             _repository = repository;
             _mapper = mapper;
             _tokenSettings = settings.Value;
-            _secretKey = JWTSecret.SecretKey;
         }
 
-        string ITokenService.GenerateAccessToken(IdentityUser user, IList<string> roles)
+        string IIdentityTokenService.GenerateAccessToken(IdentityUser user, IList<string> roles)
         {
             string token = string.Empty;
             if (user != null && roles != null)
             {
-                var userClaims = new List<Claim>
+                var userClaims = new Dictionary<string, object>
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                    { "UserName", user.UserName },
                 };
 
-                foreach (var role in roles)
+                var tokenDescriptor = new SecurityTokenDescriptor
                 {
-                    userClaims.Add(new Claim(ClaimTypes.Role, role));
-                }
-
-                var jwtTokenOptions = new JwtSecurityToken(
-                    issuer: _tokenSettings.Issuer,
-                    audience: _tokenSettings.Audience,
-                    expires: DateTime.Now.AddMinutes(ExpiresTime),
-                    signingCredentials: new SigningCredentials(
-                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey)),
+                    Issuer = _tokenSettings.Issuer,
+                    Audience = _tokenSettings.Audience,
+                    Expires = DateTime.Now.AddMinutes(ExpiresTime),
+                    SigningCredentials = new SigningCredentials(
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret.AccessSecretKey)),
                         SecurityAlgorithms.HmacSha256),
-                    claims: userClaims);
+                    Claims = userClaims
+                };
 
-                token = new JwtSecurityTokenHandler().WriteToken(jwtTokenOptions);
+                var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
+                var securityToken = jwtSecurityTokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+                token = jwtSecurityTokenHandler.WriteToken(securityToken);
             }
 
             return token;
         }
 
-        string ITokenService.GenerateRefreshToken()
+        async Task<string> IIdentityTokenService.GenerateRefreshToken(string userId)
         {
-            var randomNumber = new byte[64];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Issuer = _tokenSettings.Issuer,
+                Audience = _tokenSettings.Audience,
+                Expires = DateTime.Now.AddMinutes(ExpiresTime),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret.RefreshSecretKey)),
+                    SecurityAlgorithms.HmacSha256)
+            };
 
-            return Convert.ToBase64String(randomNumber);
+            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
+            var securityToken = jwtSecurityTokenHandler.CreateToken(tokenDescriptor);
+            var token = jwtSecurityTokenHandler.WriteToken(securityToken);
+
+            var refreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid().ToString(),
+                Token = token,
+                Expires = DateTimeOffset.Now.AddHours(1),
+                UserId = userId
+            };
+            await _repository.CreateAsync(refreshToken);
+
+            return token;
         }
 
-        async Task ITokenService.SaveRefreshToken(RefreshTokenDto refreshToken)
+        IEnumerable<Claim> IIdentityTokenService.ValidateAccessToken(string token)
         {
-            var mapCourse = _mapper.Map<RefreshToken>(refreshToken);
-            await _repository.CreateAsync(mapCourse);
-        }
-
-        bool ITokenService.ValidateToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-
+            IEnumerable<Claim> claims;
             try
             {
-                tokenHandler.ValidateToken(
-                token,
-                new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = _tokenSettings.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = _tokenSettings.Audience,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey)),
-                    ValidateLifetime = true,
-                },
-                out var _);
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var principal = tokenHandler.ValidateToken(token,
+                    new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = _tokenSettings.Issuer,
+                        ValidateAudience = true,
+                        ValidAudience = _tokenSettings.Audience,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret.AccessSecretKey)),
+                        ValidateLifetime = true,
+                    },
+                    out var validatedToken);
+                claims = principal.Claims;
             }
             catch (SecurityTokenException)
             {
-                return false;
+                claims = new List<Claim>();
             }
 
-            return true;
+            return claims;
         }
 
-        void CheckRefreshToken(string refreshToken)
+        bool IIdentityTokenService.ValidateRefreshToken(string token)
         {
+            var isValidated = true;
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var principal = tokenHandler.ValidateToken(token,
+                    new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = _tokenSettings.Issuer,
+                        ValidateAudience = true,
+                        ValidAudience = _tokenSettings.Audience,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret.RefreshSecretKey)),
+                        ValidateLifetime = true,
+                    },
+                    out var validatedToken);
+            }
+            catch (SecurityTokenException)
+            {
+                isValidated = false;
+            }
 
+            return isValidated;
         }
     }
 }

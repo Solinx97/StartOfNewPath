@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using StartOfNewPath.Identity.DTO;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace StartOfNewPath.Identity.Interfaces
 {
-    public interface ITokenService
+    public interface IIdentityTokenService
     {
         string GenerateAccessToken(IdentityUser user, IList<string> roles);
 
-        string GenerateRefreshToken();
+        Task<string> GenerateRefreshToken(string userId);
 
-        Task SaveRefreshToken(RefreshTokenDto refreshToken);
+        IEnumerable<Claim> ValidateAccessToken(string token);
 
-        bool ValidateToken(string token);
+        bool ValidateRefreshToken(string token);
     }
 }

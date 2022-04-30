@@ -12,7 +12,7 @@ const Login = (props) => {
         password: ""
     });
 
-    const [isAuth, userManager, register, login] = useAuthorizeService(user);
+    const [register, login] = useAuthorizeService(user);
 
     const handleSubmit = async () => {
         event.preventDefault();

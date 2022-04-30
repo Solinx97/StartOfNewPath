@@ -3,20 +3,19 @@ import React, { createContext } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import Store from './components/api-authorization/Store';
-//import registerServiceWorker from './registerServiceWorker';
+import UserStore from './components/UserStore';
 
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 const rootElement = document.getElementById('root');
 
-const store = new Store();
+const userStore = new UserStore();
 
 export const Context = createContext({
-    store: store
+    userStore: userStore
 });
 
 ReactDOM.render(
-    <Context.Provider value={{store }}>
+    <Context.Provider value={{ userStore}}>
         <BrowserRouter basename={baseUrl}>
             <App />
         </BrowserRouter>

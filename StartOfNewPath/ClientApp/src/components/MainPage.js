@@ -1,26 +1,20 @@
-﻿import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthorizeService } from './api-authorization/AuthorizeService';
+import { observer } from 'mobx-react-lite';
+import { Context } from '..';
 
 const MainPage = (props) => {
     const [coursesRender, setCoursesRender] = useState(null);
-    const [isAuth] = useAuthorizeService(null);
+    const { userStore } = useContext(Context);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        let isMounted = true;
         const getAllGoursesAsync = async () => {
-            if (isMounted) {
-                await getAllGourses();
-            }
+            await getAllGourses();
         };
 
         getAllGoursesAsync();
-
-        return () => {
-            isMounted = false;
-        };
     }, []);
 
     const getAllGourses = async () => {
@@ -55,15 +49,23 @@ const MainPage = (props) => {
         );
     }
 
-    return (
-        <div>
-            {isAuth() &&
+    const render = () => {
+        if (userStore.getIsAuth()) {
+            return <div>
                 <button type="button" className="btn btn-success" onClick={() => navigate("/create-course")}>Создать курс</button>
-            }
-            <h2>Популярные курсы</h2>
-            {coursesRender}
-        </div>
-    );
+                <h2>Популярные курсы</h2>
+                {coursesRender}
+            </div>
+
+        } else {
+            return <div>
+                <h2>Популярные курсы</h2>
+                {coursesRender}
+            </div>
+        }
+    }
+
+    return render();
 }
 
-export default MainPage;
+export default observer(MainPage);

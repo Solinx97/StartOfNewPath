@@ -42,13 +42,7 @@ namespace StartOfNewPath
             settings = Configuration.GetSection(nameof(UserApiSettings));
             services.Configure<UserApiSettings>(settings);
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = scheme;
-                options.DefaultScheme = scheme;
-                options.DefaultChallengeScheme = scheme;
-            })
-            .AddScheme<AuthOptions, AuthHandler>(scheme, null);
+            services.AddAuthentication(scheme).AddScheme<AuthOptions, AuthHandler>(scheme, null);
 
             services.AddControllersWithViews();
             services.AddRazorPages();

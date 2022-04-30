@@ -2,13 +2,11 @@
 import { NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { ApplicationPaths } from './ApiAuthorizationConstants';
-import { useAuthorizeService } from './AuthorizeService';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../../index';
 
 const LoginMenu = (props) => {
-    const [isAuth, userManager] = useAuthorizeService();
-    const { store } = useContext(Context);
+    const { userStore } = useContext(Context);
 
     const authenticatedView = (userName, profilePath, logoutPath) => {
         return (<Fragment>
@@ -34,14 +32,14 @@ const LoginMenu = (props) => {
     }
 
     const render = () => {
-        if (!isAuth()) {
+        if (!userStore.getIsAuth()) {
             const registerPath = `${ApplicationPaths.Register}`;
             const loginPath = `${ApplicationPaths.Login}`;
             return anonymousView(registerPath, loginPath);
         } else {
             const profilePath = `${ApplicationPaths.Profile}`;
             const logoutPath = { pathname: `${ApplicationPaths.LogOut}`, state: { local: true } };
-            return authenticatedView(store.getUser().userName, profilePath, logoutPath);
+            return authenticatedView(userStore.getUser().userName, profilePath, logoutPath);
         }
     }
 

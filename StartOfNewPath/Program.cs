@@ -17,7 +17,8 @@ namespace StartOfNewPath
         {
             var host = CreateHostBuilder(args).Build();
 
-            JWTSecret.GenerateSecretKey();
+            JWTSecret.GenerateAccessSecretKey();
+            JWTSecret.GenerateRefreshSecretKey();
 
             await StartInitialization(host);
         }
