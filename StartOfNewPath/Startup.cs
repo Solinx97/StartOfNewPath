@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -34,7 +33,7 @@ namespace StartOfNewPath
 
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<SONPAuthContext>(option => option.UseSqlServer(connection));
-            services.AddIdentity<ApplicationUserModel, IdentityRole>()
+            services.AddIdentity<ApplicationUserModel, ApplicationRoleModel>()
                 .AddEntityFrameworkStores<SONPAuthContext>();
 
             var settings = Configuration.GetSection(nameof(TokenSettings));
