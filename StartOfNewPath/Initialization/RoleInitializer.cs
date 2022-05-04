@@ -9,8 +9,8 @@ namespace StartOfNewPath.Initialization
     {
         internal static async Task InitializeAsync(UserManager<ApplicationUserModel> userManager, RoleManager<ApplicationRoleModel> roleManager)
         {
-            const string adminEmail = "admin@gmail.com";
-            const string password = "_Aa123456";
+            const string adminEmail = "solinxAdmin@mail.com";
+            const string password = "1D56r$s445";
 
             if (await roleManager.FindByNameAsync(Roles.Admin) == null)
             {

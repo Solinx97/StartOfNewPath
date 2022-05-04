@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StartOfNewPath.Identity.Interfaces;
-using System.IdentityModel.Tokens.Jwt;
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -27,17 +27,22 @@ namespace StartOfNewPath.Identity.Authentication
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (!Request.Cookies.TryGetValue("accessToken", out string accessToken))
+            if (!Request.Cookies.TryGetValue("accessToken", out var accessToken))
             {
                 return AuthenticateResult.Fail("Unauthorized");
             }
 
-            var isValidate = IsValidate(accessToken);
-            if (isValidate)
+            var claims = _tokenService.ValidateAccessToken(accessToken, out var validatedToken);
+            var isExpiresed = DateTimeOffset.Now.UtcDateTime > validatedToken.ValidTo;
+            if (isExpiresed)
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var jwtToken = tokenHandler.ReadJwtToken(accessToken);
-                var identity = new ClaimsIdentity(jwtToken.Claims, Scheme.Name);
+                Response.Cookies.Delete("accessToken");
+                return AuthenticateResult.Fail("Unauthorized");
+            }
+
+            if (claims.Any())
+            {
+                var identity = new ClaimsIdentity(claims, Scheme.Name);
                 var principal = new ClaimsPrincipal(identity);
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
@@ -45,17 +50,6 @@ namespace StartOfNewPath.Identity.Authentication
             }
 
             return AuthenticateResult.Fail("Unauthorized");
-        }
-
-        private bool IsValidate(string accessToken)
-        {
-            var result = _tokenService.ValidateAccessToken(accessToken);
-            if (result.Any())
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }

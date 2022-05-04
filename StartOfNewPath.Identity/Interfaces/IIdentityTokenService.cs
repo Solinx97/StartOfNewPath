@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -9,10 +10,10 @@ namespace StartOfNewPath.Identity.Interfaces
     {
         string GenerateAccessToken(IdentityUser user, IList<string> roles);
 
-        Task<string> GenerateRefreshToken(string userId);
+        Task<string> GenerateRefreshTokenAsync(string userId);
 
-        IEnumerable<Claim> ValidateAccessToken(string token);
+        IEnumerable<Claim> ValidateAccessToken(string token, out SecurityToken validatedToken);
 
-        bool ValidateRefreshToken(string token);
+        Task<bool> RefreshAsync(string refreshToken);
     }
 }

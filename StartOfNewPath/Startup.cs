@@ -38,11 +38,16 @@ namespace StartOfNewPath
 
             var settings = Configuration.GetSection(nameof(TokenSettings));
             var scheme = settings.GetValue<string>(nameof(TokenSettings.AuthScheme));
+
             services.Configure<TokenSettings>(settings);
             settings = Configuration.GetSection(nameof(UserApiSettings));
             services.Configure<UserApiSettings>(settings);
 
-            services.AddAuthentication(scheme).AddScheme<AuthOptions, AuthHandler>(scheme, null);
+            services.AddAuthentication((options) =>
+            {
+                options.DefaultAuthenticateScheme = scheme;
+                options.DefaultChallengeScheme = scheme;
+            }).AddScheme<AuthOptions, AuthHandler>(scheme, null);
 
             services.AddControllersWithViews();
             services.AddRazorPages();

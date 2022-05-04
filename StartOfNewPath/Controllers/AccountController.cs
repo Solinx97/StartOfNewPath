@@ -72,7 +72,7 @@ namespace StartOfNewPath.Controllers
                 var roles = await _userManager.GetRolesAsync(user);
 
                 var accessToken = _tokenService.GenerateAccessToken(user, roles);
-                var refreshToken = await _tokenService.GenerateRefreshToken(user.Id);
+                var refreshToken = await _tokenService.GenerateRefreshTokenAsync(user.Id);
 
                 var cookies = HttpContext.Response.Cookies;
                 cookies.Append("accessToken", accessToken, new CookieOptions

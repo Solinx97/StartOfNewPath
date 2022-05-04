@@ -39,8 +39,12 @@ export default class UserStore {
             this.setUser(data);
             this.setIsAuth(true);
         }
-        else {
+
+        if (result.status == 401) {
+            this.setUser({});
             this.setIsAuth(false);
+
+            console.log("Need Authorize");
         }
     }
 }
