@@ -33,6 +33,12 @@ namespace StartOfNewPath.Identity.Authentication
             }
 
             var claims = _tokenService.ValidateAccessToken(accessToken, out var validatedToken);
+            if (!claims.Any())
+            {
+                Response.Cookies.Delete("accessToken");
+                return AuthenticateResult.Fail("Unauthorized");
+            }
+
             var isExpiresed = DateTimeOffset.Now.UtcDateTime > validatedToken.ValidTo;
             if (isExpiresed)
             {
@@ -40,16 +46,11 @@ namespace StartOfNewPath.Identity.Authentication
                 return AuthenticateResult.Fail("Unauthorized");
             }
 
-            if (claims.Any())
-            {
-                var identity = new ClaimsIdentity(claims, Scheme.Name);
-                var principal = new ClaimsPrincipal(identity);
-                var ticket = new AuthenticationTicket(principal, Scheme.Name);
+            var identity = new ClaimsIdentity(claims, Scheme.Name);
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
-                return AuthenticateResult.Success(ticket);
-            }
-
-            return AuthenticateResult.Fail("Unauthorized");
+            return AuthenticateResult.Success(ticket);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StartOfNewPath.DataAccessLayer.Entities;
@@ -21,17 +22,19 @@ namespace StartOfNewPath.Identity.Services
     internal class TokenService : IIdentityTokenService
     {
         private readonly ITokenRepository _repository;
+        private readonly ILogger<TokenService> _logger;
         private readonly IMapper _mapper;
         private readonly TokenSettings _tokenSettings;
         private const int AccessExpiresTimeInMinutes = 30;
         private const int RefreshExpiresTimeInHours = 24;
 
         public TokenService(IOptions<TokenSettings> settings, ITokenRepository repository,
-            IMapper mapper)
+            IMapper mapper, ILogger<TokenService> logger)
         {
             _repository = repository;
             _mapper = mapper;
             _tokenSettings = settings.Value;
+            _logger = logger;
         }
 
         string IIdentityTokenService.GenerateAccessToken(IdentityUser user, IList<string> roles)
@@ -110,8 +113,9 @@ namespace StartOfNewPath.Identity.Services
                     out validatedToken);
                 claims = principal.Claims;
             }
-            catch (SecurityTokenException)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error message: {ex.Message}, Method: {nameof(IIdentityTokenService.ValidateAccessToken)}");
                 claims = new List<Claim>();
             }
 
@@ -163,8 +167,9 @@ namespace StartOfNewPath.Identity.Services
                     out validatedToken);
                 claims = principal.Claims;
             }
-            catch (SecurityTokenException)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error message: {ex.Message}, Method: {nameof(ValidateRefreshToken)}");
                 claims = new List<Claim>();
             }
 
