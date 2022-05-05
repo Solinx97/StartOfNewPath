@@ -1,7 +1,7 @@
 ﻿import React, { Fragment, useContext } from 'react';
 import { NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import { ApplicationPaths } from './ApiAuthorizationConstants';
+import { ApplicationPaths } from './AuthorizationConstants';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../../index';
 
@@ -38,7 +38,7 @@ const LoginMenu = (props) => {
             return anonymousView(registerPath, loginPath);
         } else {
             const profilePath = `${ApplicationPaths.Profile}`;
-            const logoutPath = { pathname: `${ApplicationPaths.LogOut}`, state: { local: true } };
+            const logoutPath = `${ApplicationPaths.LogOut}`;
             return authenticatedView(userStore.getUser().userName, profilePath, logoutPath);
         }
     }

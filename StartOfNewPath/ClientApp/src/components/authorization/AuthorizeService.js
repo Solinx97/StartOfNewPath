@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { Context } from '../../index';
 import { useNavigate } from 'react-router-dom';
+import { ApplicationPaths } from './AuthorizationConstants';
 
 export const useAuthorizeService = (data) => {
     const navigate = useNavigate();
@@ -21,7 +22,7 @@ export const useAuthorizeService = (data) => {
                 await login();
             }
             else {
-                navigate("/authentication/login");
+                navigate(ApplicationPaths.Login);
             }
         }
     }
@@ -42,9 +43,26 @@ export const useAuthorizeService = (data) => {
             userStore.setUser(data);
             userStore.setIsAuth(true);
 
-            navigate("/");
+            navigate(ApplicationPaths.DefaultLoginRedirectPath);
         }
     }
 
-    return [register, login];
+    const logout = async () => {
+        const response = await fetch('account/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response;
+        if (result.status == 200) {
+            userStore.setUser({});
+            userStore.setIsAuth(false);
+
+            navigate(ApplicationPaths.DefaultLoginRedirectPath);
+        }
+    }
+
+    return [register, login, logout];
 }

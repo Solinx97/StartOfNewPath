@@ -91,5 +91,17 @@ namespace StartOfNewPath.Controllers
 
             return Forbid();
         }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+
+            HttpContext.Response.Cookies.Delete("accessToken");
+            HttpContext.Response.Cookies.Delete("refreshToken");
+
+            return Ok();
+        }
     }
 }

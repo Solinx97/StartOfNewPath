@@ -6,7 +6,7 @@ import {
 import { Layout } from './components/Layout';
 import MainPage from './components/MainPage';
 import CreateCourse from './components/CreateCourse';
-import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
+import ApiAuthorizationRoutes from './components/authorization/AuthorizationRoutes';
 import { Context } from '.';
 
 import './styles/custom.css';

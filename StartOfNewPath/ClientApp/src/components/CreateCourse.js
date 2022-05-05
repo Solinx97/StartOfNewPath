@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthorizeService } from './api-authorization/AuthorizeService';
+import { useAuthorizeService } from './authorization/AuthorizeService';
 import FormValidate from './FormValidate';
 
 import '../styles/formValidate.css';

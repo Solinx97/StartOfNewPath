@@ -1,7 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import LoginMenu from './api-authorization/LoginMenu';
+import LoginMenu from './authorization/LoginMenu';
 
 import '../styles/navMenu.css';
 
