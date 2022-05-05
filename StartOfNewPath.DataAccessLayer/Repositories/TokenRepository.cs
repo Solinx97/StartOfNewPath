@@ -2,6 +2,7 @@
 using StartOfNewPath.DataAccessLayer.Data;
 using StartOfNewPath.DataAccessLayer.Entities;
 using StartOfNewPath.DataAccessLayer.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ namespace StartOfNewPath.DataAccessLayer.Repositories
             _context = context;
         }
 
-        public async Task<int> CreateAsync(RefreshToken item)
+        async Task<int> ITokenRepository.CreateAsync(RefreshToken item)
         {
             await _context.Set<RefreshToken>().AddAsync(item);
             var numberEntries = await _context.SaveChangesAsync();
@@ -24,7 +25,7 @@ namespace StartOfNewPath.DataAccessLayer.Repositories
             return numberEntries;
         }
 
-        public async Task<int> DeleteAsync(RefreshToken item)
+        async Task<int> ITokenRepository.DeleteAsync(RefreshToken item)
         {
             _context.Set<RefreshToken>().Remove(item);
             var numberEntries = await _context.SaveChangesAsync();
@@ -32,7 +33,7 @@ namespace StartOfNewPath.DataAccessLayer.Repositories
             return numberEntries;
         }
 
-        public async Task<RefreshToken> Get(string token)
+        async Task<RefreshToken> ITokenRepository.Get(string token)
         {
             var allTokens = await _context.Set<RefreshToken>().AsNoTracking().ToListAsync();
             if (!allTokens.Any())
@@ -44,7 +45,19 @@ namespace StartOfNewPath.DataAccessLayer.Repositories
             return foundToken;
         }
 
-        public async Task<int> UpdateAsync(RefreshToken item)
+        async Task<List<RefreshToken>> ITokenRepository.GetByUser(string userId)
+        {
+            var allTokens = await _context.Set<RefreshToken>().AsNoTracking().ToListAsync();
+            if (!allTokens.Any())
+            {
+                return null;
+            }
+
+            var foundTokens = allTokens.FindAll(refreshToken => refreshToken.UserId == userId);
+            return foundTokens;
+        }
+
+        async Task<int> ITokenRepository.UpdateAsync(RefreshToken item)
         {
             _context.Entry(item).State = EntityState.Modified;
             var numberEntries = await _context.SaveChangesAsync();

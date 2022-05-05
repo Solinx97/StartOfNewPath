@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
+using StartOfNewPath.Identity.DTO;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -8,12 +9,14 @@ namespace StartOfNewPath.Identity.Interfaces
 {
     public interface IIdentityTokenService
     {
-        string GenerateAccessToken(IdentityUser user, IList<string> roles);
+        Task GenerateTokensAsync(IResponseCookies cookies, string userId);
 
-        Task<string> GenerateRefreshTokenAsync(string userId);
+        IEnumerable<Claim> ValidateToken(string token, string secretKey, out SecurityToken validatedToken);
 
-        IEnumerable<Claim> ValidateAccessToken(string token, out SecurityToken validatedToken);
+        Task<RefreshTokenDto> FindRefreshTokenAsync(string refreshToken);
 
-        Task<bool> RefreshAsync(string refreshToken);
+        Task<int> RemoveRefreshTokenAsync(RefreshTokenDto refreshToken);
+
+        Task CheckRefreshTokensByUserAsync(string userId);
     }
 }

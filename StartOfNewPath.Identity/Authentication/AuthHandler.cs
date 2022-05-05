@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StartOfNewPath.Identity.Interfaces;
+using StartOfNewPath.Identity.Security;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -32,10 +33,11 @@ namespace StartOfNewPath.Identity.Authentication
                 return AuthenticateResult.Fail("Unauthorized");
             }
 
-            var claims = _tokenService.ValidateAccessToken(accessToken, out var validatedToken);
+            var claims = _tokenService.ValidateToken(accessToken, JWTSecret.AccessSecretKey, out var validatedToken);
             if (!claims.Any())
             {
                 Response.Cookies.Delete("accessToken");
+
                 return AuthenticateResult.Fail("Unauthorized");
             }
 
@@ -43,6 +45,7 @@ namespace StartOfNewPath.Identity.Authentication
             if (isExpiresed)
             {
                 Response.Cookies.Delete("accessToken");
+
                 return AuthenticateResult.Fail("Unauthorized");
             }
 

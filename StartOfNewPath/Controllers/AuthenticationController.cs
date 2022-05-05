@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StartOfNewPath.Identity.Interfaces;
+using StartOfNewPath.Identity.Security;
 using StartOfNewPath.Models.User;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,10 +33,28 @@ namespace StartOfNewPath.Controllers
                 return Unauthorized();
             }
 
-            var refreshTokenIsValidated = await _tokenService.RefreshAsync(refreshToken);
-            if (!refreshTokenIsValidated)
+            var claims = _tokenService.ValidateToken(refreshToken, JWTSecret.RefreshSecretKey, out var validateToken);
+            if (!claims.Any())
             {
+                return Unauthorized();
+            }
+
+            var foundToken = await _tokenService.FindRefreshTokenAsync(refreshToken);
+            if (foundToken == null)
+            {
+                Response.Cookies.Delete("accessToken");
                 Response.Cookies.Delete("refreshToken");
+
+                return Unauthorized();
+            }
+
+            var isExpiresed = DateTimeOffset.Now.UtcDateTime > validateToken.ValidTo;
+            if (isExpiresed)
+            {
+                Response.Cookies.Delete("accessToken");
+                Response.Cookies.Delete("refreshToken");
+                await _tokenService.RemoveRefreshTokenAsync(foundToken);
+
                 return Unauthorized();
             }
 
@@ -44,16 +64,13 @@ namespace StartOfNewPath.Controllers
                 return Unauthorized();
             }
 
+
             var currentUser = users.First();
+            await _tokenService.CheckRefreshTokensByUserAsync(currentUser.Id);
+
             if (!HttpContext.Request.Cookies.TryGetValue("accessToken", out var accessToken))
             {
-                var roles = await _userManager.GetRolesAsync(currentUser);
-                var newAccessToken = _tokenService.GenerateAccessToken(currentUser, roles);
-                HttpContext.Response.Cookies.Append("accessToken", newAccessToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    SameSite = SameSiteMode.Strict,
-                });
+                await _tokenService.GenerateTokensAsync(HttpContext.Response.Cookies, currentUser.Id);
             }
 
             return Ok(currentUser);

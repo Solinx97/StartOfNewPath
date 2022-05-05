@@ -69,22 +69,7 @@ namespace StartOfNewPath.Controllers
                     return BadRequest();
                 }
 
-                var roles = await _userManager.GetRolesAsync(user);
-
-                var accessToken = _tokenService.GenerateAccessToken(user, roles);
-                var refreshToken = await _tokenService.GenerateRefreshTokenAsync(user.Id);
-
-                var cookies = HttpContext.Response.Cookies;
-                cookies.Append("accessToken", accessToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    SameSite = SameSiteMode.Strict,
-                });
-                cookies.Append("refreshToken", refreshToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    SameSite = SameSiteMode.Strict,
-                });
+                await _tokenService.GenerateTokensAsync(HttpContext.Response.Cookies, user.Id);
 
                 return Ok(user);
             }
@@ -96,12 +81,20 @@ namespace StartOfNewPath.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            if (Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+            {
+                await _signInManager.SignOutAsync();
 
-            HttpContext.Response.Cookies.Delete("accessToken");
-            HttpContext.Response.Cookies.Delete("refreshToken");
+                HttpContext.Response.Cookies.Delete("accessToken");
+                HttpContext.Response.Cookies.Delete("refreshToken");
 
-            return Ok();
+                var refreshTokenModel = await _tokenService.FindRefreshTokenAsync(refreshToken);
+                await _tokenService.RemoveRefreshTokenAsync(refreshTokenModel);
+
+                return Ok();
+            }
+
+            return Unauthorized();
         }
     }
 }

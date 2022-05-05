@@ -16,7 +16,7 @@ namespace StartOfNewPath.DataAccessLayer.Repositories
             _context = context;
         }
 
-        public async Task<int> CreateAsync(TModel item)
+        async Task<int> IGenericRepository<TModel>.CreateAsync(TModel item)
         {
             await _context.Set<TModel>().AddAsync(item);
             var numberEntries = await _context.SaveChangesAsync();
@@ -24,7 +24,7 @@ namespace StartOfNewPath.DataAccessLayer.Repositories
             return numberEntries;
         }
 
-        public async Task<int> DeleteAsync(TModel item)
+        async Task<int> IGenericRepository<TModel>.DeleteAsync(TModel item)
         {
             _context.Set<TModel>().Remove(item);
             var numberEntries = await _context.SaveChangesAsync();
@@ -32,9 +32,9 @@ namespace StartOfNewPath.DataAccessLayer.Repositories
             return numberEntries;
         }
 
-        public async Task<IEnumerable<TModel>> GetAllAsync() => await _context.Set<TModel>().AsNoTracking().ToListAsync();
+        async Task<IEnumerable<TModel>> IGenericRepository<TModel>.GetAllAsync() => await _context.Set<TModel>().AsNoTracking().ToListAsync();
 
-        public async Task<TModel> GetByIdAsync(int id)
+        async Task<TModel> IGenericRepository<TModel>.GetByIdAsync(int id)
         {
             var entity = await _context.Set<TModel>().FindAsync(id);
 
@@ -46,7 +46,7 @@ namespace StartOfNewPath.DataAccessLayer.Repositories
             return entity;
         }
 
-        public async Task<int> UpdateAsync(TModel item)
+        async Task<int> IGenericRepository<TModel>.UpdateAsync(TModel item)
         {
             _context.Entry(item).State = EntityState.Modified;
             var numberEntries = await _context.SaveChangesAsync();

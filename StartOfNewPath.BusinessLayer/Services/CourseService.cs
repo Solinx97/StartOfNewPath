@@ -22,7 +22,7 @@ namespace StartOfNewPath.BusinessLayer.Services
             _mapper = mapper;
         }
 
-        public Task<int> CreateAsync(CourseDto item)
+        Task<int> IService<CourseDto>.CreateAsync(CourseDto item)
         {
             if (item == null)
             {
@@ -32,7 +32,7 @@ namespace StartOfNewPath.BusinessLayer.Services
             return CreateInternalAsync(item);
         }
 
-        public Task<int> DeleteAsync(CourseDto item)
+        Task<int> IService<CourseDto>.DeleteAsync(CourseDto item)
         {
             if (item == null)
             {
@@ -42,31 +42,23 @@ namespace StartOfNewPath.BusinessLayer.Services
             return DeleteInternalAsync(item);
         }
 
-        public async Task<IEnumerable<CourseDto>> GetAllAsync()
+        async Task<IEnumerable<CourseDto>> IService<CourseDto>.GetAllAsync()
         {
             var allData = await _repository.GetAllAsync();
-            //if (!allData.Any())
-            //{
-            //    throw new NotFoundException($"Collection entity {nameof(CourseDto)} not found", nameof(allData));
-            //}
-
             var result = _mapper.Map<List<CourseDto>>(allData);
+
             return result;
         }
 
-        public async Task<CourseDto> GetByIdAsync(int id)
+        async Task<CourseDto> IService<CourseDto>.GetByIdAsync(int id)
         {
             var executeLoad = await _repository.GetByIdAsync(id);
-            //if (executeLoad == null)
-            //{
-            //    throw new NotFoundException($"Entity {nameof(CourseDto)} by Id not found", nameof(executeLoad));
-            //}
-
             var result = _mapper.Map<CourseDto>(executeLoad);
+
             return result;
         }
 
-        public Task<int> UpdateAsync(CourseDto item)
+        Task<int> IService<CourseDto>.UpdateAsync(CourseDto item)
         {
             if (item == null)
             {

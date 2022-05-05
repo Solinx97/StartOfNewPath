@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -37,62 +37,26 @@ namespace StartOfNewPath.Identity.Services
             _logger = logger;
         }
 
-        string IIdentityTokenService.GenerateAccessToken(IdentityUser user, IList<string> roles)
+        async Task IIdentityTokenService.GenerateTokensAsync(IResponseCookies cookies, string userId)
         {
-            string token = string.Empty;
-            if (user != null && roles != null)
+            var accessToken = GenerateToken(JWTSecret.AccessSecretKey);
+            var refreshToken = GenerateToken(JWTSecret.RefreshSecretKey);
+
+            cookies.Append("accessToken", accessToken, new CookieOptions
             {
-                var userClaims = new List<Claim> { new Claim("userName", user.UserName) };
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Issuer = _tokenSettings.Issuer,
-                    Audience = _tokenSettings.Audience,
-                    Expires = DateTime.Now.AddMinutes(AccessExpiresTimeInMinutes),
-                    SigningCredentials = new SigningCredentials(
-                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret.AccessSecretKey)),
-                        SecurityAlgorithms.HmacSha256),
-                    Subject = new ClaimsIdentity(userClaims)
-                };
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict,
+            });
+            cookies.Append("refreshToken", refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict,
+            });
 
-                var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-
-                var securityToken = jwtSecurityTokenHandler.CreateJwtSecurityToken(tokenDescriptor);
-                token = jwtSecurityTokenHandler.WriteToken(securityToken);
-            }
-
-            return token;
+            await CreateRefreshTokenAsync(refreshToken, userId);
         }
 
-        async Task<string> IIdentityTokenService.GenerateRefreshTokenAsync(string userId)
-        {
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Issuer = _tokenSettings.Issuer,
-                Audience = _tokenSettings.Audience,
-                Expires = DateTime.Now.AddHours(RefreshExpiresTimeInHours),
-                SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret.RefreshSecretKey)),
-                    SecurityAlgorithms.HmacSha256)
-            };
-
-            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-
-            var securityToken = jwtSecurityTokenHandler.CreateToken(tokenDescriptor);
-            var token = jwtSecurityTokenHandler.WriteToken(securityToken);
-
-            var refreshToken = new RefreshToken
-            {
-                Id = Guid.NewGuid().ToString(),
-                Token = token,
-                Expires = DateTimeOffset.Now.AddMinutes(10).UtcDateTime,
-                UserId = userId
-            };
-            await _repository.CreateAsync(refreshToken);
-
-            return token;
-        }
-
-        IEnumerable<Claim> IIdentityTokenService.ValidateAccessToken(string token, out SecurityToken validatedToken)
+        IEnumerable<Claim> IIdentityTokenService.ValidateToken(string token, string secretKey, out SecurityToken validatedToken)
         {
             IEnumerable<Claim> claims;
             validatedToken = null;
@@ -107,7 +71,7 @@ namespace StartOfNewPath.Identity.Services
                         ValidateAudience = true,
                         ValidAudience = _tokenSettings.Audience,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret.AccessSecretKey)),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
                         ValidateLifetime = true,
                     },
                     out validatedToken);
@@ -115,68 +79,14 @@ namespace StartOfNewPath.Identity.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error message: {ex.Message}, Method: {nameof(IIdentityTokenService.ValidateAccessToken)}");
+                _logger.LogError(ex, $"Error message: {ex.Message}, Method: {nameof(IIdentityTokenService.ValidateToken)}");
                 claims = new List<Claim>();
             }
 
             return claims;
         }
 
-        async Task<bool> IIdentityTokenService.RefreshAsync(string refreshToken)
-        {
-            var claims = ValidateRefreshToken(refreshToken, out var validateToken);
-            if (!claims.Any())
-            {
-                return false;
-            }
-
-            var foundToken = await FindRefreshTokenAsync(refreshToken);
-            if (foundToken == null)
-            {
-                return false;
-            }
-
-            var isExpiresed = DateTimeOffset.Now.UtcDateTime > validateToken.ValidTo;
-            if (isExpiresed)
-            {
-                await RemoveRefreshTokenAsync(foundToken);
-                return false;
-            }
-
-            return true;
-        }
-
-        private IEnumerable<Claim> ValidateRefreshToken(string token, out SecurityToken validatedToken)
-        {
-            IEnumerable<Claim> claims;
-            validatedToken = null;
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var principal = tokenHandler.ValidateToken(token,
-                    new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidIssuer = _tokenSettings.Issuer,
-                        ValidateAudience = true,
-                        ValidAudience = _tokenSettings.Audience,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret.RefreshSecretKey)),
-                        ValidateLifetime = true,
-                    },
-                    out validatedToken);
-                claims = principal.Claims;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error message: {ex.Message}, Method: {nameof(ValidateRefreshToken)}");
-                claims = new List<Claim>();
-            }
-
-            return claims;
-        }
-
-        private async Task<RefreshTokenDto> FindRefreshTokenAsync(string refreshToken)
+        async Task<RefreshTokenDto> IIdentityTokenService.FindRefreshTokenAsync(string refreshToken)
         {
             var token = await _repository.Get(refreshToken);
             var map = _mapper.Map<RefreshTokenDto>(token);
@@ -184,12 +94,58 @@ namespace StartOfNewPath.Identity.Services
             return map;
         }
 
-        private async Task<int> RemoveRefreshTokenAsync(RefreshTokenDto refreshToken)
+        async Task IIdentityTokenService.CheckRefreshTokensByUserAsync(string userId)
+        {
+            var tokens = await _repository.GetByUser(userId);
+            foreach (var token in tokens)
+            {
+                var map = _mapper.Map<RefreshTokenDto>(token);
+                if (DateTimeOffset.Now.UtcDateTime > token.Expires)
+                {
+                    await RemoveRefreshTokenAsync(map);
+                }
+            }
+        }
+
+        public async Task<int> RemoveRefreshTokenAsync(RefreshTokenDto refreshToken)
         {
             var map = _mapper.Map<RefreshToken>(refreshToken);
             var result = await _repository.DeleteAsync(map);
 
            return result;
+        }
+
+        private string GenerateToken(string accessKey)
+        {
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Issuer = _tokenSettings.Issuer,
+                Audience = _tokenSettings.Audience,
+                Expires = DateTime.Now.AddMinutes(AccessExpiresTimeInMinutes),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(accessKey)),
+                    SecurityAlgorithms.HmacSha256),
+            };
+
+            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
+            var securityToken = jwtSecurityTokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+            var token = jwtSecurityTokenHandler.WriteToken(securityToken);
+
+            return token;
+        }
+
+        private async Task CreateRefreshTokenAsync(string refreshToken, string userId)
+        {
+            var refreshTokenModel = new RefreshToken
+            {
+                Id = Guid.NewGuid().ToString(),
+                Token = refreshToken,
+                Expires = DateTimeOffset.Now.AddMinutes(10).UtcDateTime,
+                UserId = userId
+            };
+
+            await _repository.CreateAsync(refreshTokenModel);
         }
     }
 }
