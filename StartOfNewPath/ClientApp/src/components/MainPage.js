@@ -30,13 +30,18 @@ const MainPage = (props) => {
     }
 
     const fillingCourseList = (courses) => {
-        const list = courses.map((element) => getCourse(element));
+        if (courses.length > 0) {
+            const list = courses.map((element) => getCourse(element));
 
-        setCoursesRender(
-            <ul>
-                {list}
-            </ul>
-        );
+            setCoursesRender(
+                <ul>
+                    {list}
+                </ul>
+            );
+        }
+        else {
+            setCoursesRender(<div>Необходимо добавить хотя бы 1 курс</div>);
+        }
     }
 
     const getCourse = (element) => {
@@ -50,19 +55,13 @@ const MainPage = (props) => {
     }
 
     const render = () => {
-        if (userStore.getIsAuth()) {
-            return <div>
+        return <div>
+            {userStore.isAuth &&
                 <button type="button" className="btn btn-success" onClick={() => navigate("/create-course")}>Создать курс</button>
-                <h2>Популярные курсы</h2>
-                {coursesRender}
-            </div>
-
-        } else {
-            return <div>
-                <h2>Популярные курсы</h2>
-                {coursesRender}
-            </div>
-        }
+            }
+            <h2>Популярные курсы</h2>
+            {coursesRender}
+        </div>
     }
 
     return render();

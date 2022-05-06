@@ -58,22 +58,20 @@ namespace StartOfNewPath.Controllers
                 return Unauthorized();
             }
 
-            var users = _userManager.Users.ToList();
-            if (!users.Any())
+            var user = await _userManager.FindByIdAsync(foundToken.UserId);
+            if (user == null)
             {
                 return Unauthorized();
             }
 
-
-            var currentUser = users.First();
-            await _tokenService.CheckRefreshTokensByUserAsync(currentUser.Id);
+            await _tokenService.CheckRefreshTokensByUserAsync(user.Id);
 
             if (!HttpContext.Request.Cookies.TryGetValue("accessToken", out var accessToken))
             {
-                await _tokenService.GenerateTokensAsync(HttpContext.Response.Cookies, currentUser.Id);
+                await _tokenService.GenerateTokensAsync(HttpContext.Response.Cookies, user.Id);
             }
 
-            return Ok(currentUser);
+            return Ok(user);
         }
     }
 }

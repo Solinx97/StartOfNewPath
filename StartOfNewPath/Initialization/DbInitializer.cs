@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace StartOfNewPath.Initialization
 {
-    public class RoleInitializer
+    public class DbInitializer
     {
         internal static async Task InitializeAsync(UserManager<ApplicationUserModel> userManager, RoleManager<ApplicationRoleModel> roleManager)
         {

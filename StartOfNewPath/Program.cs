@@ -38,7 +38,7 @@ namespace StartOfNewPath
             {
                 var userManager = services.GetRequiredService<UserManager<ApplicationUserModel>>();
                 var rolesManager = services.GetRequiredService<RoleManager<ApplicationRoleModel>>();
-                await RoleInitializer.InitializeAsync(userManager, rolesManager);
+                await DbInitializer.InitializeAsync(userManager, rolesManager);
             }
             catch (Exception ex)
             {

@@ -19,7 +19,9 @@ const App = () => {
             await userStore.checkAuth();
         }
 
-        checkAuthAsync();
+        if (document.cookie.indexOf("accessToken") == 0) {
+            checkAuthAsync();
+        }
     }, []);
 
      return (

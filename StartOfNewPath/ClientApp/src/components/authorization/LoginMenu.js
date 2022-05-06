@@ -32,14 +32,14 @@ const LoginMenu = (props) => {
     }
 
     const render = () => {
-        if (!userStore.getIsAuth()) {
+        if (!userStore.isAuth) {
             const registerPath = `${ApplicationPaths.Register}`;
             const loginPath = `${ApplicationPaths.Login}`;
             return anonymousView(registerPath, loginPath);
         } else {
             const profilePath = `${ApplicationPaths.Profile}`;
             const logoutPath = `${ApplicationPaths.LogOut}`;
-            return authenticatedView(userStore.getUser().userName, profilePath, logoutPath);
+            return authenticatedView(userStore.user.userName, profilePath, logoutPath);
         }
     }
 

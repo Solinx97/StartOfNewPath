@@ -44,7 +44,6 @@ namespace StartOfNewPath.Identity.Services
 
             cookies.Append("accessToken", accessToken, new CookieOptions
             {
-                HttpOnly = true,
                 SameSite = SameSiteMode.Strict,
             });
             cookies.Append("refreshToken", refreshToken, new CookieOptions

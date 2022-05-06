@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react'
+﻿import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useAuthorizeService } from './AuthorizeService';
 
@@ -10,8 +10,7 @@ const Registration = (props) => {
         firstName: "",
         surname: "",
         email: "",
-        password: "",
-        passwordConfirm: ""
+        password: ""
     });
 
     const [register] = useAuthorizeService(user);
@@ -66,7 +65,7 @@ const Registration = (props) => {
             <div className="mb-3 row">
                 <label forhtml="confirmPassword" className="col-sm-2 col-form-label">Подтверждение пароля</label>
                 <div className="col-sm-10">
-                    <input type="password" className="form-control" id="passwordConfirm" name="passwordConfirm" onChange={handleChange} />
+                    <input type="password" className="form-control" id="passwordConfirm" />
                 </div>
             </div>
             <div>

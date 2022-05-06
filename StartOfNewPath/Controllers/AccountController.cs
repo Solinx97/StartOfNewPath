@@ -78,6 +78,27 @@ namespace StartOfNewPath.Controllers
         }
 
         [Authorize]
+        [HttpPost("profile")]
+        public async Task<IActionResult> Profile(UserProfileModel userModel)
+        {
+            var user = new ApplicationUserModel
+            {
+                UserName = userModel.UserName,
+                FirstName = userModel.FirstName,
+                Surname = userModel.Surname,
+                Email = userModel.Email
+            };
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok(user);
+            }
+
+            return BadRequest();
+        }
+
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
