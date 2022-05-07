@@ -30,8 +30,7 @@ const Registration = (props) => {
         await register(true);
     }
 
-    return (
-        <form className="registration__container" onSubmit={handleSubmit}>
+    return <form className="registration__container" onSubmit={handleSubmit}>
             <div className="mb-3 row">
                 <label htmlFor="userName" className="col-sm-2 col-form-label">Имя пользователя</label>
                 <div className="col-sm-10">
@@ -72,8 +71,7 @@ const Registration = (props) => {
                 <button type="submit" className="btn btn-success">Регистрация</button>
                 <button type="button" className="btn btn-dark" onClick={() => navigate("/")}>Отмена</button>
             </div>
-        </form>
-    );
+        </form>;
 }
 
 export default Registration;

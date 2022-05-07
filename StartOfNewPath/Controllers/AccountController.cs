@@ -78,21 +78,19 @@ namespace StartOfNewPath.Controllers
         }
 
         [Authorize]
-        [HttpPost("profile")]
-        public async Task<IActionResult> Profile(UserProfileModel userModel)
+        [HttpPut]
+        public async Task<IActionResult> EditProfile(UserProfileModel userProfile)
         {
-            var user = new ApplicationUserModel
-            {
-                UserName = userModel.UserName,
-                FirstName = userModel.FirstName,
-                Surname = userModel.Surname,
-                Email = userModel.Email
-            };
+            var user = await _userManager.FindByIdAsync(userProfile.Id);
+            user.FirstName = userProfile.FirstName;
+            user.Surname = userProfile.Surname;
+            user.Email = userProfile.Email;
+            user.UserName = userProfile.UserName;
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                return Ok(user);
+                return Ok();
             }
 
             return BadRequest();

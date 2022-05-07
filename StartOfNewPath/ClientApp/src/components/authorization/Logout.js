@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { useAuthorizeService } from './AuthorizeService';
 
 const Logout = () => {
-    const [register, login, logout] = useAuthorizeService({});
+    const [register, login, profile, logout] = useAuthorizeService({});
 
     useEffect(() => {
         const logoutAsync = async () => {

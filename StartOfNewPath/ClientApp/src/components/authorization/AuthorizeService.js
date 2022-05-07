@@ -47,6 +47,21 @@ export const useAuthorizeService = (data) => {
         }
     }
 
+    const profile = async () => {
+        const response = await fetch('account', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response;
+        if (result.status == 200) {
+            window.location.reload();
+        }
+    }
+
     const logout = async () => {
         const response = await fetch('account/logout', {
             method: 'POST',
@@ -64,5 +79,5 @@ export const useAuthorizeService = (data) => {
         }
     }
 
-    return [register, login, logout];
+    return [register, login, profile, logout];
 }
