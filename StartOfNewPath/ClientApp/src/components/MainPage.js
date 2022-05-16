@@ -1,15 +1,14 @@
 ﻿import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Context } from '..';
 
 import '../styles/mainPage.css';
 
 const MainPage = (props) => {
+    const navigate = useNavigate();
     const [coursesRender, setCoursesRender] = useState(null);
     const { userStore } = useContext(Context);
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         const getAllGoursesAsync = async () => {
@@ -17,7 +16,7 @@ const MainPage = (props) => {
         };
 
         getAllGoursesAsync();
-    }, []);
+    }, [userStore.user]);
 
     const getAllGourses = async () => {
         const response = await fetch('course', {
@@ -62,9 +61,9 @@ const MainPage = (props) => {
                         <li className="list-group-item">Необходимо пройти проверочный тест: {element.isHaveCheckTestAfter}</li>
                     </ul>
                     <div className="card-body">
-                        <a href="#" className="card-link">Открыть</a>
+                        <NavLink className="card-link" to="/edit-course">Открыть</NavLink>
                         {userStore.user.id == element.ownerId &&
-                            <a href="#" className="card-link">Редактировать</a>
+                            <NavLink className="card-link" to={"/edit-course?id=" + element.id}>Редактировать</NavLink>
                         }
                     </div>
                 </div>

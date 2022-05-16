@@ -6,6 +6,7 @@ import {
 import { Layout } from './components/Layout';
 import MainPage from './components/MainPage';
 import CreateCourse from './components/CreateCourse';
+import EditCourse from './components/EditCourse';
 import ApiAuthorizationRoutes from './components/authorization/AuthorizationRoutes';
 import { Context } from '.';
 
@@ -29,6 +30,7 @@ const App = () => {
              <Routes>
                  <Route path='/' element={<MainPage />} />
                  <Route path='/create-course' element={<CreateCourse />} />
+                 <Route path='/edit-course/' element={<EditCourse />} />
                  <Route path="*" element={<ApiAuthorizationRoutes />} />
              </Routes>
          </Layout>

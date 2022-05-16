@@ -34,9 +34,12 @@ namespace StartOfNewPath.Controllers
 
         [Authorize]
         [HttpGet("{id}")]
-        public CourseModel GetById(int id)
+        public async Task<CourseModel> GetById(int id)
         {
-            return null;
+            var course = await _service.GetByIdAsync(id);
+            var result = _mapper.Map<CourseModel>(course);
+
+            return result;
         }
 
         [Authorize]
@@ -50,9 +53,13 @@ namespace StartOfNewPath.Controllers
         }
 
         [Authorize]
-        [HttpPut("{id}")]
-        public void Update(int id, CourseModel course)
+        [HttpPut()]
+        public async Task<int> Update(CourseModel course)
         {
+            var mapCourse = _mapper.Map<CourseDto>(course);
+            var result = await _service.UpdateAsync(mapCourse);
+
+            return result;
         }
 
         [Authorize]
