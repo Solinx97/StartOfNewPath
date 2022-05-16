@@ -1,12 +1,13 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthorizeService } from './authorization/AuthorizeService';
 import FormValidate from './FormValidate';
+import { Context } from '..';
 
 import '../styles/formValidate.css';
 
 const CreateCourse = (props) => {
     const navigate = useNavigate();
+    const { userStore } = useContext(Context);
 
     const [course, setCourse] = useState({
         name: "",
@@ -22,7 +23,6 @@ const CreateCourse = (props) => {
     });
     const [difficulty, setDifficulty] = useState(0);
     const [courseResult, setCourseResult] = useState(0);
-    //const [isAuth, userManager] = useAuthorizeService();
     const [minDate, setMinDate] = useState("2022-04-26");
 
     useEffect(() => {
@@ -69,13 +69,11 @@ const CreateCourse = (props) => {
     }
 
     const createCourse = async (course) => {
-        course.ownerId = user.sub;
+        course.ownerId = userStore.user.id;
 
-        const token = await authService.getAccessToken();
         const response = await fetch('course', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(course),

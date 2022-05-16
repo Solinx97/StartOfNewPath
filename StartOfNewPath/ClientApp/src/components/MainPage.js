@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Context } from '..';
 
+import '../styles/mainPage.css';
+
 const MainPage = (props) => {
     const [coursesRender, setCoursesRender] = useState(null);
     const { userStore } = useContext(Context);
@@ -34,7 +36,7 @@ const MainPage = (props) => {
             const list = courses.map((element) => getCourse(element));
 
             setCoursesRender(
-                <ul>
+                <ul className="courses__container">
                     {list}
                 </ul>
             );
@@ -47,9 +49,25 @@ const MainPage = (props) => {
     const getCourse = (element) => {
         return (
             <li key={element.id}>
-                <div>{element.name}</div>
-                <div>{element.description}</div>
-                <div>{element.difficulty}</div>
+                <div className="card">
+                    <div className="card-body">
+                        <h5 className="card-title">{element.name}</h5>
+                        <p className="card-text">{element.description}</p>
+                    </div>
+                    <ul className="list-group list-group-flush">
+                        <li className="list-group-item">Сложность: {element.difficulty}</li>
+                        <li className="list-group-item">Макс участвников: {element.maxMentee}</li>
+                        <li className="list-group-item">Популярность: {element.population}</li>
+                        <li className="list-group-item">Необходимо пройти тест: {element.isHaveCheckTestBefore}</li>
+                        <li className="list-group-item">Необходимо пройти проверочный тест: {element.isHaveCheckTestAfter}</li>
+                    </ul>
+                    <div className="card-body">
+                        <a href="#" className="card-link">Открыть</a>
+                        {userStore.user.id == element.ownerId &&
+                            <a href="#" className="card-link">Редактировать</a>
+                        }
+                    </div>
+                </div>
             </li>
         );
     }

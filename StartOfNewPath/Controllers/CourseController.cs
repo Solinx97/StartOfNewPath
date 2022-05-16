@@ -41,7 +41,7 @@ namespace StartOfNewPath.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<int> Post(CourseModel course)
+        public async Task<int> Create(CourseModel course)
         {
             var mapCourse = _mapper.Map<CourseDto>(course);
             var result = await _service.CreateAsync(mapCourse);
@@ -51,7 +51,7 @@ namespace StartOfNewPath.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public void Put(int id, CourseModel course)
+        public void Update(int id, CourseModel course)
         {
         }
 
