@@ -32,7 +32,7 @@ namespace StartOfNewPath.Controllers
             return result;
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<CourseModel> GetById(int id)
         {
@@ -64,8 +64,12 @@ namespace StartOfNewPath.Controllers
 
         [Authorize]
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<int> Delete(int id)
         {
+            var course = await _service.GetByIdAsync(id);
+            var result = await _service.DeleteAsync(course);
+
+            return result;
         }
     }
 }

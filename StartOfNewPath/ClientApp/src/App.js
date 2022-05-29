@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import MainPage from './components/MainPage';
+import Course from './components/Course';
 import CreateCourse from './components/CreateCourse';
 import EditCourse from './components/EditCourse';
 import ApiAuthorizationRoutes from './components/authorization/AuthorizationRoutes';
@@ -29,6 +30,7 @@ const App = () => {
          <Layout>
              <Routes>
                  <Route path='/' element={<MainPage />} />
+                 <Route path='/target-course' element={<Course />} />
                  <Route path='/create-course' element={<CreateCourse />} />
                  <Route path='/edit-course/' element={<EditCourse />} />
                  <Route path="*" element={<ApiAuthorizationRoutes />} />

@@ -45,6 +45,18 @@ const MainPage = (props) => {
         }
     }
 
+    const remove = async (name, id) => {
+        let isRemove = prompt(`Введите 'yes' если вы действительно хотите удалить курс '${name}'`);
+        if (isRemove === 'yes') {
+            const response = await fetch(`course/${id}`, {
+                method: 'DELETE'
+            });
+
+            const status = await response.status;
+            console.log(status);
+        }
+    }
+
     const getCourse = (element) => {
         return (
             <li key={element.id}>
@@ -61,9 +73,12 @@ const MainPage = (props) => {
                         <li className="list-group-item">Необходимо пройти проверочный тест: {element.isHaveCheckTestAfter}</li>
                     </ul>
                     <div className="card-body">
-                        <NavLink className="card-link" to="/edit-course">Открыть</NavLink>
+                        <NavLink className="card-link" to={"/target-course?id=" + element.id}>Открыть</NavLink>
                         {userStore.user.id == element.ownerId &&
-                            <NavLink className="card-link" to={"/edit-course?id=" + element.id}>Редактировать</NavLink>
+                            <>
+                            <NavLink className="card-link" to={"/edit-course?id=" + element.id}>Изменить</NavLink>
+                            <button className="btn btn-warning" onClick={() => remove(element.name, element.id)}>Удалить</button>
+                            </>
                         }
                     </div>
                 </div>
